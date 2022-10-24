@@ -24,7 +24,7 @@ dept_emp, dept_manager, employees, salaries, titles
 */
 
 /*What is the relationship between the employees and the departments tables?
-Many to Many
+They both contain a feature that exist in dept_emp
 */
 
 SHOW CREATE TABLE dept_manager;
