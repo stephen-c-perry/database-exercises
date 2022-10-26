@@ -1,15 +1,39 @@
-/* Copy the order by exercise and save it as functions_exercises.sql.
-
-Write a query to to find all employees whose last name starts and ends with 'E'. Use concat() to combine their first and last name together as a single column named full_name.
-
-Convert the names produced in your last query to all uppercase.
-
-Find all employees hired in the 90s and born on Christmas. Use datediff() function to find how many days they have been working at the company (Hint: You will also need to use NOW() or CURDATE()),
-
-Find the smallest and largest current salary from the salaries table.
-
-Use your knowledge of built in SQL functions to generate a username for all of the employees. A username should be all lowercase, and consist of the first character of the employees first name, the first 4 characters of the employees last name, an underscore, the month the employee was born, and the last two digits of the year that they were born. Below is an example of what the first 10 rows will look like:
-*/
-
 use employees;
 
+# 1 Create a new SQL script named limit_exercises.sql.
+
+# 2 MySQL provides a way to return only unique results from our queries with the keyword DISTINCT. For example, to find all the unique titles within the company, we could run the following query:
+
+SELECT DISTINCT title FROM titles;
+
+#List the first 10 distinct last name sorted in descending order.
+
+SELECT DISTINCT last_name
+FROM employees
+ORDER BY last_name DESC
+LIMIT 10;
+
+#ANSWER: Zykh, Zyda, Zwicker, Zweizig, Zumaque, Zultner, Zucker, Zuberek, Zschoche, Zongker
+
+# 3 Find all previous or current employees hired in the 90s and born on Christmas. Find the first 5 employees hired in the 90's by sorting by hire date and limiting your results to the first 5 records. Write a comment in your code that lists the five names of the employees returned.
+
+SELECT *
+FROM employees
+WHERE (hire_date BETWEEN '1990-01-01' AND '1999-12-31')
+	AND (birth_date LIKE '%-12-25')
+ORDER BY hire_date ASC
+LIMIT 5;
+
+#ANSWER: Alselm Cappello, Utz Mandell, Bouchung Schreiter, Baocai Kushner, Petter Stoustrup
+
+# 4 Try to think of your results as batches, sets, or pages. The first five results are your first page. The five after that would be your second page, etc. Update the query to find the tenth page of results.
+
+SELECT *
+FROM employees
+where birth_date like '%-12-25' and hire_date like '199%'
+ORDER BY hire_date ASC
+Limit 50;
+
+# 5 LIMIT and OFFSET can be used to create multiple pages of data. What is the relationship between OFFSET (number of results to skip), LIMIT (number of results per page), and the page number?
+
+# ANSWER: Page Number is the location of the result of the offset and limit filters
