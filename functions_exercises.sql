@@ -41,7 +41,10 @@ FROM salaries
 
 user_name = all lower case, first character of firstname, first 4 characters of last name, underscore, birth month, last 2 digits of year born */ 
 
-SELECT LOWER(CONCAT(SUBSTR(first_name, 1), SUBSTR(last_name, 1, 4), ('_'), SUBSTR(birth_date, 9, 10), SUBSTR(birth_date, 3, 4))
+/*SELECT CONCAT(LEFT(first_name, 1) + LEFT(last_name 4) + ('_') + RIGHT (birth_date, 9) + LEFT(birth_date, 4)
+FROM employees;*/
+
+SELECT LOWER(CONCAT(SUBSTR(first_name, 1, 1), SUBSTR(last_name, 1, 4), '_', SUBSTR(birth_date, 6, 2), SUBSTR(birth_date, 3, 2))) AS username, first_name, last_name, birth_date
 FROM employees;
 
 /*
@@ -63,3 +66,4 @@ FROM employees;
 10 rows in set (0.05 sec)
 
 */
+
