@@ -1,6 +1,27 @@
+use employees;
+
 /*
 
-1. Find all the current employees with the same hire date as employee 101010 using a sub-query.
+1. Find all the current employees with the same hire date as employee 101010 using a sub-query.*/
+
+DESCRIBE employees;
+#contains hire_date, emp_no, first_name, last_name, 
+
+DESCRIBE dept_emp;
+#contains: emp_no,
+
+
+SELECT *
+FROM employees
+WHERE 
+	hire_date = (
+	SELECT hire_date
+	FROM employees
+	WHERE emp_no = 101010)
+	AND to_date LIKE '9999%');
+ 
+
+
 
 /*
 2. Find all the titles ever held by all current employees with the first name Aamod.*/
