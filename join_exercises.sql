@@ -229,10 +229,13 @@ GROUP BY dept_no, dept_name;
 
 
 SELECT
-	d.dept_name
-		ROUND(AVG(salary), 2) AS average_salary
-FROM dept_emp AS department
-JOIN salaries AS s ON de.emp_n = d.dept_no
+	d.dept_name,
+	ROUND(AVG(salary), 2) AS average_salary
+FROM dept_emp AS de
+JOIN salaries AS s ON de.emp_no = s.emp_no
+	AND de.to_date > CURDATE()
+	AND s.to_date > CURDATE()
+JOIN departments AS d ON de.dept_no = d.dept_no
 GROUP BY d.dept_name
 ORDER BY average_salary DESC
 LIMIT 1;
@@ -255,12 +258,13 @@ DESCRIBE departments
 
 SELECT first_name, last_name
 FROM employees
-JOIN dept_emp ON employees.emp_no = employees.emp_no
+JOIN dept_emp ON employees.emp_no = dept_emp.emp_no
 JOIN departments ON dept_emp.dept_no = departments.dept_no
-JOIN salaries ON salaries.emp_no = dept_emp.emp_no
+JOIN salaries ON employees.emp_no = salaries.emp_no
 WHERE salaries.to_date LIKE '9999%' AND departments.dept_name = 'Marketing'
 ORDER BY salary DESC
 LIMIT 1;
+
 
 
 /*
@@ -274,8 +278,27 @@ LIMIT 1;
 +------------+-----------+--------+-----------+
 */
 
+DESCRIBE dept_manager;
+#contains: emp_no, dept_no, from_date, to_date
 
+DESCRIBE departments;
+#contains: dept_no, dept_name
 
+DESCRIBE employees;
+#contains: emp_no, first_name, last_name
+
+DESCRIBE salaries;
+#contains: emp_no, salary, from_date, to_date
+
+-- I need these 4 tables -- 
+
+SELECT first_name, last_name, salary, dept_name
+FROM employees AS e
+JOIN dept_manager AS dm ON e.emp_no = dm.emp_no AND dm.to_date LIKE '9999%'
+JOIN departments AS d ON dm.dept_no = d.dept_no
+JOIN salaries AS s ON e.emp_no = s.emp_no AND s.to_date LIKE '9999%'
+ORDER BY s.salary DESC
+LIMIT 1
 
 /*
 10. Determine the average salary for each department. Use all salary information and round your results.
@@ -304,6 +327,29 @@ LIMIT 1;
 +--------------------+----------------+
 */
 
+DESCRIBE dept_manager;
+#contains: emp_no, dept_no, from_date, to_date
+
+DESCRIBE departments;
+#contains: dept_no, dept_name
+
+DESCRIBE employees;
+#contains: emp_no, first_name, last_name
+
+DESCRIBE salaries;
+#contains: emp_no, salary, from_date, to_date
+
+-- Find ROUND(AVG(salary)) for each department --
+
+-- I'll need these tables: salaries, dept_emp, departments --
+
+SELECT d.dept_name,
+		ROUND(AVG(s.salary), 0) AS avg_dept_salary
+FROM departments d
+JOIN dept_emp de ON d.dept_no = de.dept_no
+JOIN salaries s ON de.emp_no = s.emp_no
+GROUP BY d.dept_name
+ORDER BY avg_dept_salary DESC;
 
 
 
@@ -320,6 +366,31 @@ Employee Name | Department Name  |  Manager Name
  Huan Lortz   | Customer Service | Yuchang Weedman
 
  .....
+ 
+-- I'll need dept_emp (emp_no, dept_no, to_date, dept_manager(emp_no, dept_no), departments (dept_no, dept_name), employees(emp_no, first_name, last_name) --
+
+/*
+table order:
+	employees	|	dept_emp	|	departments  |	dept_manager
+1.	emp_no			emp_no
+2.  				dept_no			dept_no
+3.									dept_no			dept_no		*/
+
+
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', d.dept_name AS 'Department Name'
+FROM employees AS e
+JOIN dept_manager AS dm ON departments.dept_no = dm.dept_no
+JOIN dept_emp AS de ON e.emp_no = de.emp_no
+JOIN departments AS d ON de.dept_no = d.dept_no
+LIMIT 5;
+
+-- I still need to get the dept manager name in somehow.  Where can I get it from?   --
+-- Bonus exercises are still in progress --
+
+
+
+
+/*
 Bonus 
 
 12. Who is the highest paid employee within each department.
