@@ -22,19 +22,37 @@ USE employees;
  */
  
  DESCRIBE dept_manager;
- # fields: emp_no, dept_no,
+ # fields: emp_no, dept_no, from_date, to_date
  
  DESCRIBE departments;
  #fields: dept_no, dept_name
  
  DESCRIBE employees;
- # emp_no, first_name, last_name, ...
+ # emp_no, birth_date, first_name, last_name, gender, hire_date
+ 
+ #What do the tables have in common?
+ 
+ /* 1. employees and dept_manager share emp_no. 2. depart_manager and departments have dept_no in common.  
+ 	  */
+ 
+SELECT dept_name AS Department, CONCAT(first_name,'_',last_name) AS Full_Name
+FROM employees
+JOIN dept_manager ON employees.emp_no = dept_manager.emp_no
+JOIN departments ON dept_manager.dept_no = departments.dept_no
+WHERE to_date LIKE '9999%'
+ 
+-- can also be written with USING since the column names we are selecting for the join are identical across tables -- 
+
+-- To JOIN with ON you must specify the table and column (ex. table_a.column_in_a or dept_manager.dept_no) these can be aliased with AS alternate_name --
  
  SELECT dept_name, CONCAT(first_name, " ", last_name) AS `Name`
- FROM departments0
+ FROM departments
  JOIN dept_manager USING (dept_no)
  JOIN employees USING (emp_no)
  WHERE to_date LIKE "9999%";
+ 
+-- To JOIN with USING the column name must be the same in the two tables that are being joined -- 
+ 
  
  SELECT *
  FROM employees AS e
@@ -55,9 +73,13 @@ USE employees;
  JOIN departments AS d USING (dept_no)
  ORDER BY dept_name;
   
--- thought process: join everything together to make a super table then go back and start pulling things out 	   	that you don't need and clean everything up.  It's a puzzle that we have to solve.
+-- thought process: join everything together to make a super table, then go back and start pulling things out 	   	that you don't need and clean everything up.  
 
-  
+
+
+
+
+
 /*  
 3. Find the name of all departments currently managed by women.
 
@@ -77,14 +99,16 @@ JOIN employees USING (emp_no)
 WHERE to_date LIKE "9999%" AND gender = "F"
 ORDER BY dept_name;
 
--- -- -- 
-SELECT *
+-- The query above and below return the same results -- --
+
+SELECT dept_name AS "Department Name", CONCAT(first_name, " ",last_name) AS "Manager Name"
 FROM employees AS e 
 JOIN dept_manager AS dm ON e.emp_no = dm.emp_no
 #can build conditions into the join itself, or, add them at the end in a WHERE clause.  Either is fine.
 	AND to_date > CURDATE()
 	AND gender = 'F'
-JOIN departments AS d USING(dept_no);
+JOIN departments AS d USING(dept_no)
+ORDER BY dept_name;
 
 
 
@@ -107,7 +131,7 @@ SELECT title
 FROM titles
 JOIN dept_manager USING (emp_no)
 JOIN departments USING (dept_no)
-WHERE dept_name LIKE "Customer service" AND titles.to_date LIKE "9999%";
+WHERE dept_name LIKE "Customer service" AND (titles.to_date LIKE "9999%");
 
 -- 
 
@@ -117,8 +141,7 @@ JOIN titles AS t ON de.emp_no = t.emp_no
 	AND t.to_date > CURDATE()
 	AND de.to_date > CURDATE()
 JOIN departments AS d ON d.dept_no = de.dept_no
-	AND dept_name = 'Customer service'
-GROUP BY title;
+	AND dept_name = 'Customer service';
 
 
 
@@ -139,13 +162,30 @@ Research           | Hilary Kambil     |  79393
 Sales              | Hauke Zhang       | 101987
 */
 
-SELECT *
+SELECT dept_name AS 'Department Name', CONCAT(first_name, ' ', last_name) AS `NAME`, salary AS Salary
 FROM salaries
 JOIN dept_manager USING (emp_no)
-JOIN departments USING (dept_no).   
-#IN PROGRESS#-----------------------|||||||||||
+JOIN departments USING (dept_no)
+JOIN employees USING (emp_no)
+WHERE salaries.to_date LIKE '9999%'
+ORDER BY dept_name;
+
+-- Instructor's solution below --
+
+SELECT d.dept_name,
+		CONCAT(e.first_name, ' ', e.last_name) AS current_department_manager,
+		s.salary
+FROM employees as e
+JOIN salaries AS s ON e.emp_no = s.emp_no
+	AND s.to_date > CURDATE()
+JOIN dept_manager AS dm ON e.emp_no = dm.emp_no
+	AND dm.to_date > CURDATE()
+JOIN departments AS d USING(dept_no)
+ORDER BY dept_name;
 
 
+
+  
 
 /*
 6. Find the number of current employees in each department.
@@ -210,6 +250,17 @@ LIMIT 1;
 +------------+-----------+
 */
 
+DESCRIBE salaries
+DESCRIBE departments
+
+SELECT first_name, last_name
+FROM employees
+JOIN dept_emp ON employees.emp_no = employees.emp_no
+JOIN departments ON dept_emp.dept_no = departments.dept_no
+JOIN salaries ON salaries.emp_no = dept_emp.emp_no
+WHERE salaries.to_date LIKE '9999%' AND departments.dept_name = 'Marketing'
+ORDER BY salary DESC
+LIMIT 1;
 
 
 /*
