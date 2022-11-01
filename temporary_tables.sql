@@ -35,7 +35,8 @@ FROM noether_2036.employees_with_departments;
 
 DESCRIBE noether_2036.employees_with_departments;
 
-UPDATE noether_2036.employees_with_departments SET full_name = employees.first_name + employees.last_name;
+SELECT *
+FROM noether_2036.employees_with_departments;
 
 -- d. I could have gotten the same data using a join and WHERE clause 
 
@@ -59,8 +60,19 @@ ALTER TABLE noether_2036.sakila ADD amount_in_cents INT;
 UPDATE noether_2036.sakila SET amount_in_cents = amount * 100;
 
 ALTER TABLE noether_2036.sakila DROP COLUMN amount;
+
 # This gets the answer but is adding a column then removing the 'amount' column instead of transforming an existing column
 
+
+
+-- follow along with instructor, altering  --
+
+DROP TEMPORARY TABLE IF EXISTS noether_2036.sakila;
+
+SELECT CAST(amount *100 AS UNSIGNED) AS cents 
+FROM noether_2036.sakila;
+
+#Use the CAST function to alter a column and get the output.  Does not store it to column unless you ALTER TABLE
 
 
 /*
@@ -81,19 +93,40 @@ FROM noether_2036.department_comparison;
 
 
 
+-- -- -- -- -- -- -- -- -- 
+#Follow Along:
+
+
 
 
 /*4. Hint Consider that the following code will produce the z score for current salaries.*/
 
 -- Returns the historic z-scores for each salary
 -- Notice that there are 2 separate scalar subqueries involved
+USE employees;
 
-CREATE TEMPORARY TABLE noether_2036.zscore_salaries (SELECT salary,
+#Aggregate information
+
+CREATE TEMPORARY TABLE noether_2036.overall_agg AS (
+	SELECT dept_name, AVG(salary) AS dept_average
+	FROM employees.salaries
+	JOIN employees.dept_emp USING (emp_no)
+	JOIN employees.departments USING (dept_no)
+	WHERE employees.dept_emp.to_date > NOW()
+	AND employees.salaries.to_date > NOW()
+	GROUP BY dept_name
+);
+
+
+
+#Create colums for table
+ALTER TABLE 
+
+SELECT salary,
     (salary - (SELECT AVG(salary) FROM salaries))
     /
-    (SELECT stddev(salary) FROM salaries) AS zscore
-FROM salaries);
-
+    (SELECT stddev(salary) FROM salaries) AS zscore_salaries
+FROM salaries;
 
 SELECT *
 FROM noether_2036.zscore_salaries;
